@@ -1,0 +1,34 @@
+name: Windows RDP via Tailscale
+
+on:
+  workflow_dispatch:
+
+jobs:
+  rdp:
+    runs-on: windows-latest
+
+    steps:
+      - name: Setup Tailscale
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
+
+      - name: Show Tailscale IP
+        run: tailscale ip -4
+
+      - name: Enable RDP
+        run: |
+          Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
+          Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+      - name: Set runner password
+        run: |
+          $password = ConvertTo-SecureString "${{ secrets.RD_PASSWORD }}" -AsPlainText -Force
+          Set-LocalUser -Name "runner" -Password $password
+        shell: pwsh
+
+      - name: Keep alive
+        run: |
+          while ($true) { Start-Sleep -Seconds 60 }
+        shell: pwsh
