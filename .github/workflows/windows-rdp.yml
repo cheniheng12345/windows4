@@ -23,10 +23,10 @@ jobs:
           Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server' -Name fDenyTSConnections -Value 0
           Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
 
-      - name: Set runner password
+      - name: Set runneradmin password
         run: |
           $password = ConvertTo-SecureString "${{ secrets.RD_PASSWORD }}" -AsPlainText -Force
-          Set-LocalUser -Name "runner" -Password $password
+          Set-LocalUser -Name "runneradmin" -Password $password
         shell: pwsh
 
       - name: Keep alive
